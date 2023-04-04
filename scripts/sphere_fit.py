@@ -47,11 +47,14 @@ def solver(data):
 	# set flag to True
 	computed = True
 	
-def filter(data, fil_out, fil_gain):
-	# fil_in for point is input value
-	fil_in = data
-	# fil_out calculated using gain and fil_in 
-	fil_out = fil_gain * fil_in + (1- fil_gain) * fil_out
+def filter(data, fil_out, fil_gain, first_round):
+	if first_round:
+		fil_out = data
+	else:
+		# fil_in for point is input value
+		fil_in = data
+		# fil_out calculated using gain and fil_in 
+		fil_out = fil_gain * fil_in + (1- fil_gain) * fil_out
 	
 	return fil_out
 	
@@ -67,23 +70,26 @@ if __name__ == '__main__':
 	rate = rospy.Rate(10)
 	
 	# set filters 
-	fil_out_x = -0.015
-	fil_out_y = -0.025
-	fil_out_z = 0.4
-	fil_out_radius = 0.04
+	fil_out_x = sphere_params.xc
+	fil_out_y = sphere_params.yc
+	fil_out_z = sphere_params.zc
+	fil_out_radius = sphere_params.radius
 	
 	# set gains
-	point_gain = 0.001
-	radius_gain = 0.01
+	point_gain = 0.05
+	radius_gain = 0.05
 	
+	first_round = True
 	while not rospy.is_shutdown():
 		# publish if data has been calculated 
 		if computed:
 			# call filter function for each point and radius to calculate fil_out
-			fil_out_x = filter(sphere_params.xc, fil_out_x, point_gain)
-			fil_out_y = filter(sphere_params.yc, fil_out_y,point_gain)
-			fil_out_z = filter(sphere_params.zc, fil_out_z,point_gain)
-			fil_out_radius = filter(sphere_params.radius, fil_out_radius, radius_gain)
+			fil_out_x = filter(sphere_params.xc, fil_out_x, point_gain, first_round)
+			fil_out_y = filter(sphere_params.yc, fil_out_y,point_gain, first_round)
+			fil_out_z = filter(sphere_params.zc, fil_out_z,point_gain, first_round)
+			fil_out_radius = filter(sphere_params.radius, fil_out_radius, radius_gain,first_round)
+			
+			first_round = False
 			
 			#filter xc
 			sphere_params.xc = fil_out_x
