@@ -77,18 +77,22 @@ if __name__ == '__main__':
 	
 	# set gains
 	point_gain = 0.05
-	radius_gain = 0.05
+	radius_gain = 0.1
 	
 	first_round = True
 	while not rospy.is_shutdown():
+		print('main loop')
 		# publish if data has been calculated 
 		if computed:
+			print('BEFORE filter\n')
 			# call filter function for each point and radius to calculate fil_out
+			print('fil_out_x:', fil_out_x)
 			fil_out_x = filter(sphere_params.xc, fil_out_x, point_gain, first_round)
+			print('fil_out_x:', fil_out_x)
 			fil_out_y = filter(sphere_params.yc, fil_out_y,point_gain, first_round)
 			fil_out_z = filter(sphere_params.zc, fil_out_z,point_gain, first_round)
 			fil_out_radius = filter(sphere_params.radius, fil_out_radius, radius_gain,first_round)
-			
+			print('AFTER filter\n')
 			first_round = False
 			
 			#filter xc
